@@ -1,42 +1,69 @@
-/*
-  IBM Wheelwriter hack
-  Pin 0: connected through MOSFET to Wheelwriter bus
-         Will pull down the bus when set to zero
-  Pin 2: ALSO connected to the bus, but listens instead of 
-         sending data
- */
-
 // on an Arduino Nano, ATmega328, the following will delay roughly 5.25us
 // TODO: adjust for model we use
 #define pulseDelay() { for (int i=0;i<16;i++) { __asm__ __volatile__("nop\n\t"); } }
 
-void setup()
-{
-    // Pin that will trigger the bus
-   pinMode(2,OUTPUT); 
-   // TODO: other pins? idk if needed for HelloWorld tho
-//   pinMode(3, INPUT); // listening pin
-//   pinMode(4, INPUT_PULLUP); // for the button
+#define PIN2_MASK 0b00000100
 
-   // start the input pin off, meaning the bus is high, normal state
-   // (PORTD is the port with digital pins 0 to 7.
-   // Manipulating it directly is faster than setting pins the usual way.
-  // For more info, see https://docs.arduino.cc/retired/hacking/software/PortManipulation/ )
-     PORTD &= 0b11111011;
+void toggleInput(const bool turnOn) {
+    // PORTD is the port with digital pins 0 to 7, with the mask we are changing pin 2 only.
+    // Manipulating it directly like this is faster than setting pins the usual way.
+    // For more info, see https://docs.arduino.cc/retired/hacking/software/PortManipulation/
 
-
-
+    // when the pin is high (on), the bus is pulled low (cause its connected to a transistor)
+    if (turnOn) {
+        // set the pin to 0 -> set the pin low -> bus pulls high -> turn on
+        PORTD &= ~PIN2_MASK;
+    } else {
+        // set the pin to 1 -> set the pin high -> bus pulls low -> turn off
+        PORTD |= PIN2_MASK;
+    }
+    pulseDelay();
 }
 
-void loop()
-{
-    helloWorld();
-}
+inline void helloWorld() {
+    /* send nine bits
+     * with a zero initial
+    */
 
-void helloWorld()
-{
+    // this is hardcoded as "A" for now, will be passed down as the argument later
+    int _byte = 0b01000001;
+
     // TODO find out if needed (apparently this is a built in function?) turn off interrupts so we don't get disturbed
     noInterrupts();
 
-    // TODO rest of the code (Reference ll. )
+    // zero initial bit
+    toggleInput(false);
+
+    // the other nine bits (actual data)
+    //we start on the little end (right side) and work our way left
+    int bitMask = 0b000000001;
+    for (int i = 0; i < 9; i++) {
+        // select bit to process
+        const bool _bit = (_byte & bitMask) != 0;
+        // process bit by setting pin
+        toggleInput(_bit);
+        // update bitMask for next bit (shift left)
+        bitMask <<= 1;
+    }
+
+    // reset to idle state
+    toggleInput(true);
+
+    // Interrupts back on
+    interrupts();
+}
+
+void setup() {
+    // Pin that will trigger the bus
+    pinMode(2, OUTPUT);
+    // TODO: other pins? idk if needed for HelloWorld tho
+    //   pinMode(3, INPUT); // listening pin
+    //   pinMode(4, INPUT_PULLUP); // for the button
+
+    // start the input pin off, meaning the bus is high, normal state
+    toggleInput(false);
+}
+
+void loop() {
+    helloWorld();
 }
