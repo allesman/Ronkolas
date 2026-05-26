@@ -37,6 +37,8 @@ inline void helloWorld() {
     // the other nine bits (actual data)
     //we start on the little end (right side) and work our way left
     int bitMask = 0b000000001;
+    // tell the compiler to unroll the loop for better performance
+    #pragma GCC unroll 9
     for (int i = 0; i < 9; i++) {
         // select bit to process
         const bool _bit = (_byte & bitMask) != 0;
