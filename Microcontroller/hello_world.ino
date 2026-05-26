@@ -56,14 +56,13 @@ inline void helloWorld() {
 void setup() {
     // Pin that will trigger the bus
     pinMode(2, OUTPUT);
-    // TODO: other pins? idk if needed for HelloWorld tho
-    //   pinMode(3, INPUT); // listening pin
-    //   pinMode(4, INPUT_PULLUP); // for the button
+    // TODO: other pins? likely not needed for HelloWorld tho
+    //   pinMode(3, INPUT); // listening for wheelwriter responses
+    //   pinMode(4, INPUT_PULLUP); // for user input button?
 
-    // start the input pin off, meaning the bus is high, normal state
-    toggleInput(false);
-}
+    // idle state (bus high)
+    toggleInput(true);
 
-void loop() {
+    // inshallah please work
     helloWorld();
 }
