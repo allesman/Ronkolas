@@ -54,7 +54,7 @@ void sendByte(const int _byte) {
 
 void sendByteAndWait(const int _byte) {
     sendByte(_byte);
-    // TODO: waiting logic (Reference ll 807ff)
+    // TODO: waiting logic Reference ll 807ff, https://github.com/tofergregg/IBM-Wheelwriter-Hack/blob/master/software/WheelwriterControlNano/WheelwriterControlNano.ino
 }
 
 void printRawChar(int rawChar) {
