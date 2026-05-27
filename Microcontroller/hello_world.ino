@@ -9,7 +9,7 @@ void toggleInput(const bool turnOn) {
     // Manipulating it directly like this is faster than setting pins the usual way.
     // For more info, see https://docs.arduino.cc/retired/hacking/software/PortManipulation/
 
-    // when the pin is high (on), the bus is pulled low (cause its connected to a transistor)
+    // CAREFUL: what the pin is set to is the opposite of what ends up at the typewriter bus (cause its connected via a transistor)
     if (turnOn) {
         // set the pin to 0 -> set the pin low -> bus pulls high -> turn on
         PORTD &= ~PIN2_MASK;
@@ -20,15 +20,12 @@ void toggleInput(const bool turnOn) {
     pulseDelay();
 }
 
-inline void helloWorld() {
+void sendByte(const int _byte) {
     /* send nine bits
      * with a zero initial
     */
 
-    // this is hardcoded as "A" for now, will be passed down as the argument later
-    int _byte = 0b01000001;
-
-    // TODO find out if needed (apparently this is a built in function?) turn off interrupts so we don't get disturbed
+    // built in function to turn off interrupts so we don't get disturbed
     noInterrupts();
 
     // zero initial bit
@@ -38,7 +35,7 @@ inline void helloWorld() {
     //we start on the little end (right side) and work our way left
     int bitMask = 0b000000001;
     // tell the compiler to unroll the loop for better performance
-    #pragma GCC unroll 9
+#pragma GCC unroll 9
     for (int i = 0; i < 9; i++) {
         // select bit to process
         const bool _bit = (_byte & bitMask) != 0;
@@ -55,6 +52,22 @@ inline void helloWorld() {
     interrupts();
 }
 
+void sendByteAndWait(const int _byte) {
+    sendByte(_byte);
+    // TODO: waiting logic (Reference ll 807ff)
+}
+
+void printRawChar(int rawChar) {
+    // Bus Protocol Headers
+    sendByteAndWait(0b100100001);
+    sendByteAndWait(0b000001011);
+    sendByteAndWait(0b100100001);
+    sendByteAndWait(0b000000011);
+
+    // Actual Char
+    sendByteAndWait(rawChar);
+}
+
 void setup() {
     // Pin that will trigger the bus
     pinMode(2, OUTPUT);
@@ -66,5 +79,5 @@ void setup() {
     toggleInput(true);
 
     // inshallah please work
-    helloWorld();
+    printRawChar('A');
 }
