@@ -4,7 +4,10 @@ from pathlib import Path
 from interface import ImageLoader
 from interface.ImageLoader import BmpImageLoader
 from interface.Preprocessor import ImagePreprocessor
+from interface.ASCIIConverter import RampAsciiConverter
 from type.Image import Image
+import os
+import numpy as np
 
 def find_and_load_image(directory:Path,loader:ImageLoader) -> Image|None:
     for path in directory.glob("*.bmp"):
@@ -25,9 +28,12 @@ def find_and_load_image(directory:Path,loader:ImageLoader) -> Image|None:
 #Testing
 def show_image(custom_img: Image):
     """Konvertiert dein Image-Objekt in ein Pillow-Bild und zeigt es an."""
+    pixels = custom_img.pixels
+    if isinstance(pixels, np.ndarray):
+        pixels = pixels.flatten()
 
     # 1. Sicherstellen, dass alle Werte zwischen 0 und 255 liegen (wichtig für bytes)
-    clamped_pixels = [max(0, min(255, int(p))) for p in custom_img.pixels]
+    clamped_pixels = [max(0, min(255, int(p))) for p in pixels]
     pixel_bytes = bytes(clamped_pixels)
 
     pil_mode = "RGB" if custom_img.mode == "RGB" else "L"
@@ -49,13 +55,25 @@ def show_image(custom_img: Image):
     except Exception as e:
         print(f"[FEHLER] Pillow konnte das Bild nicht rendern: {e}")
 
+def show_ascii(ascii_art):
+    print("\n--- ASCII preview ---")
+    for row in ascii_art.grid:
+        print("".join(row))
+    print("---\n")
+    output_path = Path(os.getcwd()) / "output_ascii.txt"
+    with output_path.open("w", encoding="utf-8") as f:
+        for row in ascii_art.grid:
+            f.write("".join(row) + "\n")
+    print(f"[output] written to {output_path.resolve()}")
 
-search_directory = Path("../Images_for_testing/")
+
+search_directory = Path("Images_for_testing/")
 image_Loader = BmpImageLoader()
 
 found_image = find_and_load_image(search_directory,image_Loader)
 if found_image:
     print(f"found {found_image.source_path}")
+    print("opening image viewer...")
 
     show_image(found_image)
     pre = ImagePreprocessor()
@@ -64,6 +82,12 @@ if found_image:
     high_contrast = pre.adjust_contrast(normalized,1.5)
 
     show_image(high_contrast)
+
+    #ascii
+    converter = RampAsciiConverter()
+    ascii = converter.convert(high_contrast)
+    print(f"[ascii] grid {ascii.height}x{ascii.width}, charset='{ascii.charset}'")
+    show_ascii(ascii)
 
 
 

@@ -2,6 +2,7 @@ import copy
 from abc import ABC, abstractmethod
 from pathlib import Path
 from type.Image import Image
+import numpy as np
 
 class Preprocessor(ABC):
     @abstractmethod
@@ -26,46 +27,43 @@ class ImagePreprocessor(Preprocessor):
             b = img.pixels[i+2]
             gray = int(0.299 * r + 0.587 * g + 0.114 * b)
             gray_pixels.append(gray)
+        pixels_np = np.array(gray_pixels, dtype=np.uint8).reshape((img.height, img.width))
         return Image(
             width=img.width,
             height=img.height,
-            pixels=gray_pixels,
+            pixels=pixels_np,
             mode="GRAY",
             source_path=img.source_path
         )
     def normalize(self, img: Image) -> Image:
-        if not img.pixels:
-            return copy.deepcopy(img)
+        pixels = np.array(img.pixels, dtype=np.float32)
+        flat = pixels.flatten()
 
-        min_val = min(img.pixels)
-        max_val = max(img.pixels)
+        min_val = flat.min()
+        max_val = flat.max()
+
         if max_val == min_val:
             return copy.deepcopy(img)
-        norm_pixels = [
-            int(((p - min_val) / (max_val - min_val)) * 255)
-            for p in img.pixels
-        ]
+        
+        normalized = ((pixels - min_val) / (max_val - min_val) * 255)
+        normalized = np.clip(normalized, 0, 255).astype(np.uint8)
 
         return Image(
             width=img.width,
             height=img.height,
-            pixels=norm_pixels,
+            pixels=normalized,
             mode=img.mode,
             source_path=img.source_path
         )
     def adjust_contrast(self, img: Image, factor: float) -> Image:
-        new_pixels = []
-
-        for p in img.pixels:
-            new_val = int(128 + factor * (p - 128))
-            new_val = max(0, min(255, new_val))
-
-            new_pixels.append(new_val)
-
+        pixels = np.array(img.pixels, dtype=np.float32)
+        adjusted = 128 + factor * (pixels - 128)
+        adjusted = np.clip(adjusted, 0, 255).astype(np.uint8)
+        
         return Image(
             width=img.width,
             height=img.height,
-            pixels=new_pixels,
+            pixels=adjusted,
             mode=img.mode,
             source_path=img.source_path
         )
