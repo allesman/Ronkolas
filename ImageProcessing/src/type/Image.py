@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 class Image:
     width:  int
     height: int
-    pixels: list
+    pixels: list[int]
 
     #config
     mode:           str     #RGB or GRAY
