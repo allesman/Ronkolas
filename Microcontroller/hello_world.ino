@@ -3,6 +3,7 @@
 #define pulseDelay() { for (int i=0;i<16;i++) { __asm__ __volatile__("nop\n\t"); } }
 
 #define PIN2_MASK 0b00000100
+#define PIN3_MASK 0b00001000
 
 void toggleInput(const bool turnOn) {
     // PORTD is the port with digital pins 0 to 7, with the mask we are changing pin 2 only.
@@ -55,6 +56,11 @@ void sendByte(const int _byte) {
 void sendByteAndWait(const int _byte) {
     sendByte(_byte);
     // TODO: waiting logic Reference ll 807ff, https://github.com/tofergregg/IBM-Wheelwriter-Hack/blob/master/software/WheelwriterControlNano/WheelwriterControlNano.ino
+    
+    while (PIND & PIN3_MASK) {} // line goes low
+    while (!(PIND & PIN3_MASK)) {} // line goes high
+
+    delayMicroseconds(450);
 }
 
 void printRawChar(int rawChar) {
@@ -79,5 +85,9 @@ void setup() {
     toggleInput(true);
 
     // inshallah please work
+    printRawChar('A');
+}
+
+void loop() {
     printRawChar('A');
 }
