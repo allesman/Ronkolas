@@ -67,7 +67,7 @@ def show_ascii(ascii_art):
     print(f"[output] written to {output_path.resolve()}")
 
 
-search_directory = Path("Images_for_testing/")
+search_directory = Path("../Images_for_testing/")
 image_Loader = BmpImageLoader()
 
 found_image = find_and_load_image(search_directory,image_Loader)
