@@ -1,46 +1,50 @@
 import time
+
 from type.ASCII import ASCII
 
-#IMPORTANT: CHECK BELOW FOR NOTES AND INFORMATION @Hardware
+# IMPORTANT: CHECK BELOW FOR NOTES AND INFORMATION @Hardware
 
 
 try:
     import RPi.GPIO as GPIO
+
     GPIO_AVAILABLE = True
 except ImportError:
     GPIO_AVAILABLE = False
     print("[WARN] RPi.GPIO not available - simulation mode")
-    
-#-------------------------------------------------------------------------------------------   
-#PIN MAPPING - change here when working on hardware
-#format: 'char': GPIO_Pin_Number (BCM)  <-- TODO: !!!
+
+# -------------------------------------------------------------------------------------------
+# PIN MAPPING - change here when working on hardware
+# format: 'char': GPIO_Pin_Number (BCM)  <-- TODO: !!!
 
 CHAR_TO_PIN: dict[str, int] = {
-    ' ':  2,   # Space
-    '.':  3,   # Period
-    ':':  4,   # Colon
-    '=':  17,  # Equal
-    '+':  27,  # Plus
-    '*':  22,  # Asterisk
-    '#':  10,  # Hashtag
-    '%':  9,   # Percent
-    '@':  11,  # At
-    '\n': 14,  # Carriage Return / Line Feed  <- TODO: pins from board here, currently random setup
+    # --- 8-relay module --- left header column, top→bottom (phys pins 7,11,13,15,29,31,33,37)
+    " ": 4,  # Space     | phys 7
+    ".": 17,  # Period    | phys 11
+    ":": 27,  # Colon     | phys 13
+    "=": 22,  # Equal     | phys 15
+    "+": 5,  # Plus      | phys 29
+    "*": 6,  # Asterisk  | phys 31
+    "#": 13,  # Hashtag   | phys 33
+    "%": 26,  # Percent   | phys 37
+    # --- 4-relay module --- right header column, top→bottom (phys pins 16,18) — 2 channels spare
+    "@": 23,  # At        | phys 16
+    "\n": 24,  # CR/LF     | phys 18
 }
 
-#-------------------------------------------------------------------------------------------  
-#Timing - in seconds, TODO: change according to typewriter speed
+# -------------------------------------------------------------------------------------------
+# Timing - in seconds, TODO: change according to typewriter speed
 
-PULSE_DURATION = 0.05       #how long is signal on high in relais (cur: 50ms)
-CHAR_DELAY = 0.1            #pause between chars (cur: 100ms)
-CR_DELAY = 0.3              #pause after carriage return (cur: 300ms)
+PULSE_DURATION = 0.05  # how long is signal on high in relais (cur: 50ms)
+CHAR_DELAY = 0.1  # pause between chars (cur: 100ms)
+CR_DELAY = 0.3  # pause after carriage return (cur: 300ms)
 
 
-class RpiTypeWriter():
-    #currently simulation mode - only logging
-    #cur model: Raspberry Pi Zero 2W
-    #uses GPIO (BCM) for relais control
-    
+class RpiTypeWriter:
+    # currently simulation mode - only logging
+    # cur model: Raspberry Pi Zero 2W
+    # uses GPIO (BCM) for relais control
+
     def __init__(
         self,
         char_map: dict[str, int] = CHAR_TO_PIN,
@@ -48,12 +52,12 @@ class RpiTypeWriter():
         char_delay: float = CHAR_DELAY,
         cr_delay: float = CR_DELAY,
     ) -> None:
-        self._char_map      = char_map
-        self._pulse         = pulse_duration
-        self._char_delay    = char_delay
-        self._cr_delay      = cr_delay
-        self._simulation    = not GPIO_AVAILABLE
-        
+        self._char_map = char_map
+        self._pulse = pulse_duration
+        self._char_delay = char_delay
+        self._cr_delay = cr_delay
+        self._simulation = not GPIO_AVAILABLE
+
     def setup(self) -> None:
         """sets alls mapped pins as outputs and pulls them low"""
         if self._simulation:
@@ -61,50 +65,50 @@ class RpiTypeWriter():
             return
         GPIO.setmode(GPIO.BCM)
         for pin in self._char_map.values():
-            GPIO.setup(pin, GPIO.OUT, initial=GPIO.LOW)
+            GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
         print("[GPIO] setup() done")
-        
+
     def print_ascii(self, ascii: ASCII) -> None:
         """prints the grid"""
         for row in ascii.grid:
             for char in row:
                 self.print_char(char)
             self.carriage_return()
-            
+
     def print_char(self, char: str) -> None:
         """maps char to pin"""
         if char not in self._char_map:
             print(f"[WARN] char '{char}' not mapped - skipped")
             return
-        
+
         pin = self._char_map[char]
-        
+
         if self._simulation:
             print(f"[SIM] print_char('{char}') -> pin {pin} HIGH for {self._pulse}s")
         else:
-            GPIO.output(pin, GPIO.HIGH)
-            time.sleep(self._pulse)
             GPIO.output(pin, GPIO.LOW)
-        
+            time.sleep(self._pulse)
+            GPIO.output(pin, GPIO.HIGH)
+
         time.sleep(self._char_delay)
-        
+
     def carriage_return(self) -> None:
         """carriage return — uses '\n' pin from mapping"""
-        if '\n' not in self._char_map:
+        if "\n" not in self._char_map:
             print("[WARN] cr-pin undefined - skipped")
             return
 
-        pin = self._char_map['\n']
+        pin = self._char_map["\n"]
 
         if self._simulation:
             print(f"[SIM] carriage_return() -> pin {pin} HIGH for {self._pulse}s")
         else:
-            GPIO.output(pin, GPIO.HIGH)
-            time.sleep(self._pulse)
             GPIO.output(pin, GPIO.LOW)
+            time.sleep(self._pulse)
+            GPIO.output(pin, GPIO.HIGH)
 
         time.sleep(self._cr_delay)
-        
+
     def cleanup(self) -> None:
         """sets all pins on LOW - is always executed"""
         if self._simulation:
@@ -112,13 +116,12 @@ class RpiTypeWriter():
             return
         GPIO.cleanup()
         print("[GPIO] cleanup() done")
-        
-        
-    #------------------------------------------------------------------------------------------- 
-    #NOTES FOR HARDWARE
-    
-    #USING THIS:
-    
+
+    # -------------------------------------------------------------------------------------------
+    # NOTES FOR HARDWARE
+
+    # USING THIS:
+
     """
     from implementation.RpiTypewriterDriver import RpiTypewriterDriver
 
@@ -129,18 +132,19 @@ class RpiTypeWriter():
     finally:
         driver.cleanup()   # must always execute
     """
-    
-    #TODO's:
-    
-    # 1)  CHAR_TO_PIN needs to be set up once wiring is set. BCM numbering refers to the GPIO numbers, not the physical pin numbers on the board
-    # 2)  Simulation-Mode: as long as RPi.GPIO is not installed (on the machine), the code runs in a simulation mode producing only log outputs. Pipeline can be tested without the Pi in Simulation Mode
-    # 3)  Timing - PULSE_DURATION and CHAR_DELAY need to be empirically determined on the typewriter: too short will result in relais not triggering, too lang will result in long waiting times for printing
-    # 4) if the typewriter also has Line Feed, add a second key ('\r') to the mapping and extend carriage_return() to trigger a second pulse
-    
-    #-----
-    
-    #Further information:
-    
-    #currently code does Active-High (GPIO.HIGH = Relais on). if relais are active-low, change HIGH and LOW in code
-    
-    
+
+    # TODO's:
+
+    # - [x] currently code does Active-High (GPIO.HIGH = Relais on). if relais are active-low, change HIGH and LOW in code. note: that is in fact the case, so i changed it
+    # - [ ] CHAR_TO_PIN needs to be set up once wiring is set. BCM numbering refers to the GPIO numbers, not the physical pin numbers on the board
+    # - [ ] Timing: PULSE_DURATION and CHAR_DELAY need to be empirically determined on the typewriter: too short will result in relais not triggering, too lang will result in long waiting times for printing
+
+    # -----
+
+    # useful info:
+    # - Simulation-Mode: as long as RPi.GPIO is not installed (on the machine), the code runs in a simulation mode producing only log outputs. Pipeline can be tested without the Pi in Simulation Mode
+    # - if the typewriter also has Line Feed, add a second key ('\r') to the mapping and extend carriage_return() to trigger a second pulse
+
+    # -----
+
+    # Further information:
