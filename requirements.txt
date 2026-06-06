@@ -1,0 +1,5 @@
+numpy
+Pillow
+RPi.GPIO  # will fail on non-Pi; that's fine, code handles it
+
+
