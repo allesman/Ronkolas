@@ -74,6 +74,7 @@ class Orchestrator:
         self._log.info("start printing")
         self._driver.setup()
         try:
+            input("insert paper and press ENTER")
             self._driver.print_ascii(ascii)
 
             try:
