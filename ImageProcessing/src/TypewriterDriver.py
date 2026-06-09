@@ -92,17 +92,17 @@ class RpiTypeWriter:
 
         pins = self._char_map[char]
 
-        if self._simulation:
-            print(f"[SIM] print_char('{char}') -> pins {pins} LOW for {self._pulse}s")
-        else:
+        if not self._simulation:
             for pin in pins:
                 GPIO.output(pin, GPIO.LOW)
             time.sleep(self._pulse)
             for pin in pins:
                 GPIO.output(pin, GPIO.HIGH)
+        print(f"[SIM] print_char('{char}') -> pins {pins} LOW for {self._pulse}s")
 
         time.sleep(self._char_delay)
 
+    # TODO deprecated?
     def carriage_return(self) -> None:
         """carriage return — uses '\\n' pins from mapping"""
         if "\n" not in self._char_map:
