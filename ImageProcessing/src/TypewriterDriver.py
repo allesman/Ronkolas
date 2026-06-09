@@ -15,21 +15,28 @@ except ImportError:
 
 # -------------------------------------------------------------------------------------------
 # PIN MAPPING - change here when working on hardware
-# format: 'char': GPIO_Pin_Number (BCM)  <-- TODO: !!!
+# each char maps to a tuple of GPIO pins (BCM) to pulse simultaneously
 
-CHAR_TO_PIN: dict[str, int] = {
-    # --- 8-relay module --- left header column, top→bottom (phys pins 7,11,13,15,29,31,33,37)
-    " ": 4,  # Space     | phys 7
-    ".": 17,  # Period    | phys 11
-    ":": 27,  # Colon     | phys 13
-    "=": 22,  # Equal     | phys 15
-    "+": 5,  # Plus      | phys 29
-    "*": 6,  # Asterisk  | phys 31
-    "#": 13,  # Hashtag   | phys 33
-    "%": 26,  # Percent   | phys 37
-    # --- 4-relay module --- right header column, top→bottom (phys pins 16,18) — 2 channels spare
-    "@": 23,  # At        | phys 16
-    "\n": 24,  # CR/LF     | phys 18
+SHIFT_PIN = 2
+
+CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
+    # unshifted
+    ' ':  (0,),
+    ',':  (1,),
+    '8':  (3,),
+    '4':  (4,),
+    '3':  (5,),
+    '2':  (6,),
+    '=':  (7,),
+    ';':  (8,),
+    '\n': (9,),
+    # shifted
+    '*':  (SHIFT_PIN, 3),
+    '$':  (SHIFT_PIN, 4),
+    '#':  (SHIFT_PIN, 5),
+    '@':  (SHIFT_PIN, 6),
+    '+':  (SHIFT_PIN, 7),
+    ':':  (SHIFT_PIN, 8),
 }
 
 # -------------------------------------------------------------------------------------------
@@ -46,11 +53,11 @@ class RpiTypeWriter:
     # uses GPIO (BCM) for relais control
 
     def __init__(
-        self,
-        char_map: dict[str, int] = CHAR_TO_PIN,
-        pulse_duration: float = PULSE_DURATION,
-        char_delay: float = CHAR_DELAY,
-        cr_delay: float = CR_DELAY,
+            self,
+            char_map: dict[str, tuple[int, ...]] = CHAR_TO_PIN,
+            pulse_duration: float = PULSE_DURATION,
+            char_delay: float = CHAR_DELAY,
+            cr_delay: float = CR_DELAY,
     ) -> None:
         self._char_map = char_map
         self._pulse = pulse_duration
@@ -59,12 +66,13 @@ class RpiTypeWriter:
         self._simulation = not GPIO_AVAILABLE
 
     def setup(self) -> None:
-        """sets alls mapped pins as outputs and pulls them low"""
+        """sets all mapped pins as outputs and pulls them high"""
         if self._simulation:
             print("[SIM] setup() — all pins initialized")
             return
         GPIO.setmode(GPIO.BCM)
-        for pin in self._char_map.values():
+        used_pins = {pin for pins in self._char_map.values() for pin in pins}
+        for pin in used_pins:
             GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
         print("[GPIO] setup() done")
 
@@ -76,36 +84,40 @@ class RpiTypeWriter:
             self.carriage_return()
 
     def print_char(self, char: str) -> None:
-        """maps char to pin"""
+        """pulses all pins mapped to char simultaneously"""
         if char not in self._char_map:
             print(f"[WARN] char '{char}' not mapped - skipped")
             return
 
-        pin = self._char_map[char]
+        pins = self._char_map[char]
 
         if self._simulation:
-            print(f"[SIM] print_char('{char}') -> pin {pin} HIGH for {self._pulse}s")
+            print(f"[SIM] print_char('{char}') -> pins {pins} LOW for {self._pulse}s")
         else:
-            GPIO.output(pin, GPIO.LOW)
+            for pin in pins:
+                GPIO.output(pin, GPIO.LOW)
             time.sleep(self._pulse)
-            GPIO.output(pin, GPIO.HIGH)
+            for pin in pins:
+                GPIO.output(pin, GPIO.HIGH)
 
         time.sleep(self._char_delay)
 
     def carriage_return(self) -> None:
-        """carriage return — uses '\n' pin from mapping"""
+        """carriage return — uses '\\n' pins from mapping"""
         if "\n" not in self._char_map:
             print("[WARN] cr-pin undefined - skipped")
             return
 
-        pin = self._char_map["\n"]
+        pins = self._char_map["\n"]
 
         if self._simulation:
-            print(f"[SIM] carriage_return() -> pin {pin} HIGH for {self._pulse}s")
+            print(f"[SIM] carriage_return() -> pins {pins} LOW for {self._pulse}s")
         else:
-            GPIO.output(pin, GPIO.LOW)
+            for pin in pins:
+                GPIO.output(pin, GPIO.LOW)
             time.sleep(self._pulse)
-            GPIO.output(pin, GPIO.HIGH)
+            for pin in pins:
+                GPIO.output(pin, GPIO.HIGH)
 
         time.sleep(self._cr_delay)
 
