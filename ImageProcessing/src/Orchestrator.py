@@ -75,6 +75,13 @@ class Orchestrator:
         self._driver.setup()
         try:
             self._driver.print_ascii(ascii)
+
+            try:
+                while True:
+                    self._driver.carriage_return()
+            except KeyboardInterrupt:
+                self._log.info("paper feed stopped")
+
         finally:
             self._driver.cleanup()
         self._log.info("finished printing")
