@@ -1,6 +1,6 @@
 from src.TypewriterDriver import RpiTypeWriter
 
-CHAR = "#"  # change to whichever char you want to test
+CHAR = "8"  # change to whichever char you want to test
 
 driver = RpiTypeWriter()
 try:

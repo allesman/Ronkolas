@@ -9,9 +9,9 @@ try:
     import RPi.GPIO as GPIO
 
     GPIO_AVAILABLE = True
-except ImportError:
+except (ImportError, RuntimeError):
     GPIO_AVAILABLE = False
-    print("[WARN] RPi.GPIO not available - simulation mode")
+    print("[WARN] RPi.GPIO not available - simulation mode. Or something went wrong with GPIO setup. Check if RPi.GPIO is installed and you are running on a Raspberry Pi.")
 
 # -------------------------------------------------------------------------------------------
 # PIN MAPPING - change here when working on hardware
@@ -66,7 +66,7 @@ class RpiTypeWriter:
         self._simulation = not GPIO_AVAILABLE
 
     def setup(self) -> None:
-        """sets all mapped pins as outputs and pulls them high"""
+        """sets all pins used in mapping as outputs and pulls them high"""
         if self._simulation:
             print("[SIM] setup() — all pins initialized")
             return
@@ -76,9 +76,9 @@ class RpiTypeWriter:
             GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
         print("[GPIO] setup() done")
 
-    def print_ascii(self, ascii: ASCII) -> None:
+    def print_ascii(self, ascii_grid: ASCII) -> None:
         """prints the grid"""
-        for row in ascii.grid:
+        for row in ascii_grid.grid:
             for char in row:
                 self.print_char(char)
             self.carriage_return()
@@ -122,9 +122,9 @@ class RpiTypeWriter:
         time.sleep(self._cr_delay)
 
     def cleanup(self) -> None:
-        """sets all pins on LOW - is always executed"""
+        """releases all GPIO pins (resets to input mode) - is always executed"""
         if self._simulation:
-            print("[SIM] cleanup() — all pins on LOW")
+            print("[SIM] cleanup() — all pins released")
             return
         GPIO.cleanup()
         print("[GPIO] cleanup() done")
@@ -150,6 +150,7 @@ class RpiTypeWriter:
     # - [x] currently code does Active-High (GPIO.HIGH = Relais on). if relais are active-low, change HIGH and LOW in code. note: that is in fact the case, so i changed it
     # - [ ] CHAR_TO_PIN needs to be set up once wiring is set. BCM numbering refers to the GPIO numbers, not the physical pin numbers on the board
     # - [ ] Timing: PULSE_DURATION and CHAR_DELAY need to be empirically determined on the typewriter: too short will result in relais not triggering, too lang will result in long waiting times for printing
+    # - [ ] Timing optimization: hold down shift pin for consecutive shifted chars to avoid multiple pulses on shift pin.
 
     # -----
 
