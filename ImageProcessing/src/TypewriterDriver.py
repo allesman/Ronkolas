@@ -17,26 +17,28 @@ except (ImportError, RuntimeError):
 # PIN MAPPING - change here when working on hardware
 # each char maps to a tuple of GPIO pins (BCM) to pulse simultaneously
 
-SHIFT_PIN = 1
+SHIFT_PIN = 9
 
 CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
     # unshifted
-    ' ':  (0,),
-    ',':  (2,),
-    '8':  (6,),
-    '4':  (5,),
+    ' ':  (11,),
+    ',':  (10,),
+    '8':  (2,),
+    '4':  (3,),
     '3':  (4,),
-    '2':  (3,),
-    '=':  (7,),
-    ';':  (8,),
-    '\n': (9,),
+    '2':  (17,),
+    '=':  (14,),
+    'l':  (8,), # should be semicolon but we messed up the wiring apparently
+    # ';':  (8,),
+    '\n': (15,),
     # shifted TODO update
-    '*':  (SHIFT_PIN, 3),
-    '$':  (SHIFT_PIN, 4),
-    '#':  (SHIFT_PIN, 5),
-    '@':  (SHIFT_PIN, 6),
-    '+':  (SHIFT_PIN, 7),
-    ':':  (SHIFT_PIN, 8),
+    '*':  (SHIFT_PIN,2),
+    '$':  (SHIFT_PIN, 3),
+    '#':  (SHIFT_PIN, 4),
+    '@':  (SHIFT_PIN, 17),
+    '+':  (SHIFT_PIN, 14),
+    'L': (SHIFT_PIN, 8), # should be semicolon but we messed up the wiring apparently
+    # ':':  (SHIFT_PIN, 8),
 }
 
 # -------------------------------------------------------------------------------------------
