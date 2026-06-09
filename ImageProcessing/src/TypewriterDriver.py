@@ -83,36 +83,10 @@ class RpiTypeWriter:
                 self.print_char(char)
             self.carriage_return()
 
-    def print_char(self, char: str) -> None:
-        print(f"[INFO] print_char('{char}')")
-        """pulses all pins mapped to char simultaneously"""
-        if char not in self._char_map:
-            print(f"[WARN] char '{char}' not mapped - skipped")
-            return
-
-        pins = self._char_map[char]
-
-        if not self._simulation:
-            for pin in pins:
-                GPIO.output(pin, GPIO.LOW)
-            time.sleep(self._pulse)
-            for pin in pins:
-                GPIO.output(pin, GPIO.HIGH)
-        print(f"[SIM] print_char('{char}') -> pins {pins} LOW for {self._pulse}s")
-
-        time.sleep(self._char_delay)
-
-    # TODO deprecated?
-    def carriage_return(self) -> None:
-        """carriage return — uses '\\n' pins from mapping"""
-        if "\n" not in self._char_map:
-            print("[WARN] cr-pin undefined - skipped")
-            return
-
-        pins = self._char_map["\n"]
-
+    def _pulse_pins(self, pins: tuple[int, ...]) -> None:
+        """pulls pins LOW, waits pulse duration, then pulls HIGH again"""
         if self._simulation:
-            print(f"[SIM] carriage_return() -> pins {pins} LOW for {self._pulse}s")
+            print(f"[SIM] pulse pins {pins} LOW for {self._pulse}s")
         else:
             for pin in pins:
                 GPIO.output(pin, GPIO.LOW)
@@ -120,6 +94,21 @@ class RpiTypeWriter:
             for pin in pins:
                 GPIO.output(pin, GPIO.HIGH)
 
+    def print_char(self, char: str) -> None:
+        """pulses all pins mapped to char simultaneously"""
+        print(f"[INFO] print_char('{char}')")
+        if char not in self._char_map:
+            print(f"[WARN] char '{char}' not mapped - skipped")
+            return
+        self._pulse_pins(self._char_map[char])
+        time.sleep(self._char_delay)
+
+    def carriage_return(self) -> None:
+        """carriage return — uses '\\n' pins from mapping"""
+        if "\n" not in self._char_map:
+            print("[WARN] cr-pin undefined - skipped")
+            return
+        self._pulse_pins(self._char_map["\n"])
         time.sleep(self._cr_delay)
 
     def cleanup(self) -> None:
