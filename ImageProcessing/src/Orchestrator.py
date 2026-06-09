@@ -75,7 +75,6 @@ class Orchestrator:
         self._driver.setup()
         try:
             self._driver.print_ascii(ascii)
-
             try:
                 while True:
                     self._driver.carriage_return()
