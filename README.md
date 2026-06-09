@@ -7,4 +7,4 @@ Advisor '26
 
 https://drive.google.com/file/d/1DEPgTYKg92O1jXpR7aps5gat5Ix3pzij/view?usp=sharing
 
-[pin mapping](https://www.pi4j.com/1.2/images/j8header-zero.png)
+![pin mapping](https://www.pi4j.com/1.2/images/j8header-zero.png)
