@@ -84,6 +84,7 @@ class RpiTypeWriter:
             self.carriage_return()
 
     def print_char(self, char: str) -> None:
+        print(f"[INFO] print_char('{char}')")
         """pulses all pins mapped to char simultaneously"""
         if char not in self._char_map:
             print(f"[WARN] char '{char}' not mapped - skipped")
