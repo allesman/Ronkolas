@@ -1,5 +1,5 @@
-from src.TypewriterDriver import RpiTypeWriter
-from src.type.ASCII import ASCII
+from TypewriterDriver import RpiTypeWriter
+from type.ASCII import ASCII
 
 # 3x4 grid using only unshifted (non-modifier) chars
 grid = [
