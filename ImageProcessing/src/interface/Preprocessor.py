@@ -16,6 +16,11 @@ class Preprocessor(ABC):
     @abstractmethod
     def adjust_contrast(self, img: Image, factor: float) -> Image:
         ...
+
+    @abstractmethod
+    def compress (self, img: Image, char_aspect_ratio: float) -> Image:
+        ...
+
 class ImagePreprocessor(Preprocessor):
     def to_grayscale(self, img: Image) -> Image:
         if img.mode == "GRAY":
@@ -66,4 +71,22 @@ class ImagePreprocessor(Preprocessor):
             pixels=adjusted,
             mode=img.mode,
             source_path=img.source_path
+        )
+    def compress (self, img: Image, char_aspect_ratio: float = 0.33) -> Image:
+        pixels = np.array(img.pixels, dtype = np.float32)
+        if pixels.ndim == 1:
+            channels = 1 if img.node == "GRAY" else 3
+            pixels = pixels.reshape ((img.height, img.width, channels)) if channels > 1 \
+                else pixels.reshape((img.height, img.width))
+        new_height = max(1, int(img.height * char_aspect_ratio))
+        row_indices = np.round(np.linspace(0, img.height - 1, new_height)).astype(int)
+        compressed = pixels[row_indices]
+        compressed = np.clip(compressed, 0, 255).astype(np.uint8)
+
+        return Image (
+            witdh = img.width,
+            height = new_height,
+            pixels = compressed,
+            mode = img.node,
+            source_path = img.source_path,
         )
