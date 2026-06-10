@@ -3,7 +3,7 @@ from type.ASCII import ASCII
 
 # 3x4 grid using only unshifted (non-modifier) chars
 grid = [
-    [' ', '8', '4', '3', ';', '2', '=', ' ', ',', '3', '8', ';'],
+    [' ', '8', '4', '3', ';', '2', '=',','],
 ]
 
 ascii_art = ASCII(grid=grid, width=4, height=3, charset="")

@@ -31,7 +31,7 @@ CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
     'l':  (8,), # should be semicolon but we messed up the wiring apparently
     # ';':  (8,),
     '\n': (15,),
-    # shifted TODO update
+    # shifted
     '*':  (SHIFT_PIN,2),
     '$':  (SHIFT_PIN, 3),
     '#':  (SHIFT_PIN, 4),
@@ -47,7 +47,7 @@ CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
 PULSE_DURATION = 0.05  # how long is signal on high in relais (cur: 50ms)
 CHAR_DELAY = 0.1  # pause between chars (cur: 100ms)
 CR_DELAY = 0.3  # pause after carriage return (cur: 300ms)
-
+POST_SHIFT_DELAY = 0.05  # additional pause after shift is pressed
 
 class RpiTypeWriter:
     # currently simulation mode - only logging

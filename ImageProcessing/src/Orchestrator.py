@@ -10,7 +10,7 @@ from TypewriterDriver import RpiTypeWriter
 from type.Image import Image
 from type.ASCII import ASCII
 
-USB_Path = Path("/media/pi")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
+USB_Path = Path("MOCK_USB")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
 #potentially needs adjustment in img loading as unsure how usb stick works
 CONTRAST_FAC = 1.0
 
@@ -43,14 +43,10 @@ class Orchestrator:
         if not USB_Path.exists():
             self._log.warn(f"no such path: {USB_Path}")
             return None
-        for device_dir in USB_Path.iterdir():
-            if not device_dir.is_dir():
-                continue
-            self._log.info(f"searching in {device_dir}")
-            for path in device_dir.rglob("*.bmp"):
-                if self._loader.is_supported(path):
-                    self._log.info(f"bmp found: {path}")
-                    return path
+        for path in USB_Path.rglob("*.bmp"):
+            if self._loader.is_supported(path):
+                self._log.info(f"bmp found: {path}")
+                return path
         self._log.warn("no bmp found on USB")
         return None
     
