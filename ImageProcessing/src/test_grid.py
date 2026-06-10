@@ -1,14 +1,16 @@
 from TypewriterDriver import RpiTypeWriter
 from type.ASCII import ASCII
 
-# 3x4 grid using only mapped chars
+# 64x64 grid using only non-shifted chars for testing
+UNSHIFTED_CHARS = [' ', ',', '8', '4', '3', '2', '=', 'l']
+
+SIZE = 64
 grid = [
-    [' ', '8', '*', '#'],
-    [';', ':', '4', ' '],
-    ['3', '=', '+', '2'],
+    [UNSHIFTED_CHARS[(row * SIZE + col) % len(UNSHIFTED_CHARS)] for col in range(SIZE)]
+    for row in range(SIZE)
 ]
 
-ascii_art = ASCII(grid=grid, width=4, height=3, charset="")
+ascii_art = ASCII(grid=grid, width=SIZE, height=SIZE, charset="")
 
 driver = RpiTypeWriter()
 try:
