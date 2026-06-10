@@ -12,6 +12,7 @@ SWITCH_PIN = 22 # switch: switch mode (HIGH = standard, LOW = artistic)
 LED_R_PIN = 23 # button: LED red = standard mode
 LED_G_PIN = 24 # button: LED green = artistic mode
 
+
 def get_mode() -> str:
     return MODE_ARTISTIC if GPIO.input(SWITCH_PIN) == GPIO.LOW else MODE_STANDARD
 
