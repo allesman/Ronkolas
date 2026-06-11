@@ -10,12 +10,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# ── venv anlegen falls nicht vorhanden ─────────────────────────────────────
-if [[ ! -d "$VENV_DIR" ]]; then
-    echo "[start.sh] venv nicht gefunden – erstelle $VENV_DIR …"
-    python3 -m venv "$VENV_DIR"
-fi
-
 # ── venv aktivieren ────────────────────────────────────────────────────────
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
