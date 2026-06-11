@@ -4,6 +4,8 @@ from pathlib import Path
 from type.Image import Image
 import numpy as np
 
+CHAR_ASPECT_RATIO = 0.523
+
 class Preprocessor(ABC):
     @abstractmethod
     def to_grayscale(self, img: Image) -> Image:
@@ -72,7 +74,7 @@ class ImagePreprocessor(Preprocessor):
             mode=img.mode,
             source_path=img.source_path
         )
-    def compress (self, img: Image, char_aspect_ratio: float = 0.5) -> Image:
+    def compress (self, img: Image, char_aspect_ratio: float = CHAR_ASPECT_RATIO) -> Image:
         pixels = np.array(img.pixels, dtype = np.float32)
         if pixels.ndim == 1:
             channels = 1 if img.mode == "GRAY" else 3

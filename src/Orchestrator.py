@@ -83,7 +83,7 @@ class Orchestrator:
         normalized = self._preProc.normalize(gray)
         contrasted = self._preProc.adjust_contrast(normalized, self._contrast)
 
-        squeezed = self._preProc.compress(contrasted, char_aspect_ratio=0.5)
+        squeezed = self._preProc.compress(contrasted)
 
         self._log.info("preprocessing done")
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     )
     
     orchestrator = Orchestrator(contrast_factor=CONTRAST_FAC, source="usb", mode=MODE_STANDARD)
-    success = orchestrator.run()
+    success = orchestrator.run(callback=lambda: logging.info("Callback: Print job completed."))
     
     if not success:
         exit(1)
