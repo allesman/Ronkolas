@@ -10,7 +10,7 @@ from TypewriterDriver import RpiTypeWriter
 from type.Image import Image
 from type.ASCII import ASCII
 
-STD_PATH = Path("")
+STD_PATH = Path("~/Ronkolas/assets/advisor4.bmp")
 USB_Path = Path("MOCK_USB")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
 #potentially needs adjustment in img loading as unsure how usb stick works
 CONTRAST_FAC = 1.0
@@ -32,7 +32,11 @@ class Orchestrator:
         
     def run(self) -> bool:
         try:
-            img_path = self._find_image_on_usb()
+            img_path = None
+            if self._mode == "usb":
+                img_path = self._find_image_on_usb()
+            else:
+                img_path = self._get_file_path()
             if img_path is None:
                 self._log.error("no img found on usb - stopped")
                 return False
@@ -44,6 +48,9 @@ class Orchestrator:
         except Exception as e:
             self._log.error("there was an error while executing pipeline", e)
             return False
+        
+    def _get_file_path(self) -> Path:
+        return STD_PATH
     
     def _find_image_on_usb(self) -> Path | None:
         self._log.info(f"Search for USB in {USB_Path}")
