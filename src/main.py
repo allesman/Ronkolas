@@ -1,4 +1,6 @@
 import time
+import os
+import subprocess
 from Orchestrator import Orchestrator, CONTRAST_FAC
 
 try:
@@ -15,6 +17,8 @@ SWITCH2_PIN = 16
 LED_R_PIN = 0 # button: LED red = standard mode
 LED_G_PIN = 5 # button: LED green = artistic mode
 
+# hold time (seconds) to trigger shutdown
+SHUTDOWN_HOLD_SECONDS = 3.0
 
 def get_mode() -> str:
     return "file" if GPIO.input(SWITCH_MODE) == GPIO.LOW else "usb"
@@ -34,25 +38,42 @@ def set_led(red: bool, green: bool) -> None:
     GPIO.output(LED_R_PIN, GPIO.HIGH if red else GPIO.LOW)
     GPIO.output(LED_G_PIN, GPIO.HIGH if green else GPIO.LOW)
 
-def check_buttons() -> None:
+def check_buttons() -> bool:
+    # return False while start button is pressed, True otherwise
     if GPIO.input(START_PIN) == GPIO.LOW:
         return False
     else:
         return True
 
+def _shutdown_pi():
+    print("[INFO] shutting down now...")
+    try:
+        subprocess.run(["sudo", "shutdown", "-h", "now"])
+    except Exception as e:
+        print(f"[ERROR] failed to call shutdown: {e}")
+        try:
+            os.system("sudo shutdown -h now")
+        except Exception:
+            pass
+    os._exit(0)
+
 def main():
     #for local testing
     if not GPIO_AVAILABLE:
-        print("[WARN] simulation - press enter to start")
+        print("[WARN] simulation - press enter to start, type 'file'/'usb' to set source, type 'shutdown' to simulate long press")
         mode = "file"
         while True:
-            user_input = input()
-            if user_input.strip() in ("file", "usb"):
-                mode = user_input.strip()
+            user_input = input().strip()
+            if user_input in ("file", "usb"):
+                mode = user_input
                 print(f"[SIM] set mode to: {mode}")
-            else:
-                print(f"[SIM] button pressed - starting orchestrator in mode: {mode}")
-                Orchestrator(contrast_factor=CONTRAST_FAC, source=mode).run()
+                continue
+            if user_input == "shutdown":
+                print("[SIM] long press detected - simulating shutdown")
+                _shutdown_pi()
+                continue
+            print(f"[SIM] button pressed - starting orchestrator in mode: {mode}")
+            Orchestrator(contrast_factor=CONTRAST_FAC, source=mode).run()
         return
 
     # --- GPIO setup ---
@@ -78,15 +99,31 @@ def main():
                 print(f"[INFO] mode: {mode}")
                 last_mode = mode
 
-            # start button
+            # poll start button
             if GPIO.input(START_PIN) == GPIO.LOW:
-                print(f"[INFO] button pressed - starting orchestrator in mode: {mode}")
-                set_led(red=True, green=True)
-                Orchestrator(contrast_factor=CONTRAST_FAC, source=mode, mode=alg).run(check_buttons)
-                set_led(red=False, green=True)
+                # detect long press
+                t0 = time.monotonic()
                 while GPIO.input(START_PIN) == GPIO.LOW:
+                    elapsed = time.monotonic() - t0
+                    if elapsed >= SHUTDOWN_HOLD_SECONDS:
+                        # indicate imminent shutdown on LEDs
+                        set_led(red=True, green=False)
+                        print(f"[INFO] start button held for {elapsed:.1f}s -> shutting down")
+                        # small delay to allow LED update
+                        time.sleep(0.2)
+                        _shutdown_pi()
+                        break
                     time.sleep(0.05)
-                time.sleep(0.05)
+                else:
+                    # button released before shutdown threshold -> short press: start orchestrator
+                    print(f"[INFO] button pressed - starting orchestrator in mode: {mode}")
+                    set_led(red=True, green=True)
+                    Orchestrator(contrast_factor=CONTRAST_FAC, source=mode, mode=alg).run(check_buttons)
+                    set_led(red=False, green=True)
+                    # debounce: wait until release
+                    while GPIO.input(START_PIN) == GPIO.LOW:
+                        time.sleep(0.05)
+                    time.sleep(0.05)
 
             time.sleep(0.05)
     except KeyboardInterrupt:
