@@ -76,17 +76,15 @@ class Orchestrator:
         self._log.info("conversion done")
         return ascii
     
-    def _print(self, ascii: ASCII) -> None:
+    def _print(self, ascii_grid: ASCII) -> None:
         self._log.info("start printing")
         self._driver.setup()
         try:
-            self._driver.print_ascii(ascii)
-            try:
-                while True:
-                    self._driver.carriage_return()
-            except KeyboardInterrupt:
-                self._log.info("paper feed stopped")
-
+            self._driver.print_ascii(ascii_grid)
+            # Paper feed: holds CR to pull artwork into display frame via weights.
+            # Fixed duration for now — TODO: replace with button/sensor input once hardware is ready.
+            PAPER_FEED_DURATION = 10.0  # seconds — adjust to what works with frame distance & size
+            self._driver.feed_paper(PAPER_FEED_DURATION)
         finally:
             self._driver.cleanup()
         self._log.info("finished printing")

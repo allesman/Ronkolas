@@ -31,13 +31,14 @@ CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
     'l':  (8,), # should be semicolon but we messed up the wiring apparently
     # ';':  (8,),
     '\n': (15,),
+
     # shifted
     '*':  (SHIFT_PIN,2),
     '$':  (SHIFT_PIN, 3),
     '#':  (SHIFT_PIN, 4),
     '@':  (SHIFT_PIN, 17),
     '+':  (SHIFT_PIN, 14),
-    'L': (SHIFT_PIN, 8), # should be semicolon but we messed up the wiring apparently
+    'L': (SHIFT_PIN, 8), # should be colon but we messed up the wiring apparently
     # ':':  (SHIFT_PIN, 8),
 }
 
@@ -48,7 +49,6 @@ PULSE_DURATION = 0.05  # how long is signal on high in relais (cur: 50ms)
 CHAR_DELAY = 0.1  # pause between chars (cur: 100ms)
 CR_DELAY = 0.3  # pause after carriage return (cur: 300ms)
 POST_SHIFT_DELAY = 0.05  # additional pause after shift is pressed
-
 
 
 class RpiTypeWriter:
@@ -89,11 +89,11 @@ class RpiTypeWriter:
                     self.print_char(char, shift_after=False)
                 else:
                     # lookahead to check if next char is shifted for timing optimization
-                    next_char = row[i+1]
+                    next_char = row[i + 1]
                     shift_after = self._is_char_shifted(next_char)
-                    self.print_char(char,shift_after)
+                    self.print_char(char, shift_after)
                 print("------------")
-            self.carriage_return() # can be replaced with print_char('\n') prolly
+            self.carriage_return()  # can be replaced with print_char('\n') prolly
             print("=============")
 
     def _pulse_pin(self, pin: int) -> None:
@@ -156,6 +156,30 @@ class RpiTypeWriter:
             return
         self.print_char("\n", shift_after=False, delay=CR_DELAY)
 
+    def feed_paper(self, duration: float) -> None:
+        """
+        Holds the CR pin LOW for `duration` seconds, then releases.
+
+        Purpose: after printing, the artwork needs to be pulled out of the typewriter
+        into a display frame using weights attached to the paper. This requires the
+        carriage-return mechanism to be held continuously (calling carriage_return()
+        continuously would just trigger repeated pulses, which is not enough).
+
+        TODO: duration should eventually be determined by a button input or sensor
+              rather than a fixed time, since frame size may vary.
+        """
+        if "\n" not in self._char_map:
+            print("[WARN] cr-pin undefined - cannot feed paper")
+            return
+        cr_pin = self._char_map["\n"][0]
+        print(f"[GPIO] feed_paper: holding CR pin {cr_pin} LOW for {duration}s")
+        if self._real_hardware_connected:
+            GPIO.output(cr_pin, GPIO.LOW)
+            time.sleep(duration)
+            GPIO.output(cr_pin, GPIO.HIGH)
+        else:
+            time.sleep(duration)
+
     def cleanup(self) -> None:
         """releases all GPIO pins (resets to input mode) - is always executed"""
         if self._real_hardware_connected:
@@ -190,7 +214,7 @@ class RpiTypeWriter:
 
     # TODO's:
 
-    # - [x] currently code does Active-High (GPIO.HIGH = Relais on). if relais are active-low, change HIGH and LOW in code. note: that is in fact the case, so i changed it
+    # - [x] currently code does Active-High (GPIO.HIGH = Relais on). if relais are active-low, change HIGH and LOW in code. note: that is in fact the case, so I changed it
     # - [x] CHAR_TO_PIN needs to be set up once wiring is set. BCM numbering refers to the GPIO numbers, not the physical pin numbers on the board
     # - [/] Timing: PULSE_DURATION and CHAR_DELAY need to be empirically determined on the typewriter: too short will result in relais not triggering, too lang will result in long waiting times for printing
     # - [x] Timing optimization: hold down shift pin for consecutive shifted chars to avoid multiple pulses on shift pin.
