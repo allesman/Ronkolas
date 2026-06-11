@@ -98,7 +98,7 @@ if __name__ == "__main__":
         format="%(asctime)s [%(levelname)s] %(message)s"
     )
     
-    orchestrator = Orchestrator(contrast_factor = CONTRAST_FAC, mode=MODE_STANDARD)
+    orchestrator = Orchestrator(contrast_factor=CONTRAST_FAC, mode=MODE_STANDARD)
     success = orchestrator.run()
     
     if not success:

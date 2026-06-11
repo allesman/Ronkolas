@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ── Konfiguration ──────────────────────────────────────────────────────────
+
 VENV_DIR=".venv"         # euer venv liegt direkt im Projektroot (Ronkolas/)
 WRAPPER="ImageProcessing/wrapper.py"
 # ───────────────────────────────────────────────────────────────────────────
