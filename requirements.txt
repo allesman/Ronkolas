@@ -3,3 +3,5 @@ Pillow
 RPi.GPIO  # will fail on non-Pi; that's fine, code handles it
 
 
+
+pytest # not essential to functinality, if theres any issues with this, dont need to install it
