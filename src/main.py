@@ -34,6 +34,12 @@ def set_led(red: bool, green: bool) -> None:
     GPIO.output(LED_R_PIN, GPIO.HIGH if red else GPIO.LOW)
     GPIO.output(LED_G_PIN, GPIO.HIGH if green else GPIO.LOW)
 
+def check_buttons() -> None:
+    if GPIO.input(START_PIN) == GPIO.LOW:
+        return False
+    else:
+        return True
+
 def main():
     #for local testing
     if not GPIO_AVAILABLE:
@@ -76,7 +82,7 @@ def main():
             if GPIO.input(START_PIN) == GPIO.LOW:
                 print(f"[INFO] button pressed - starting orchestrator in mode: {mode}")
                 set_led(red=True, green=True)
-                Orchestrator(contrast_factor=CONTRAST_FAC, source=mode, mode=alg).run()
+                Orchestrator(contrast_factor=CONTRAST_FAC, source=mode, mode=alg).run(check_buttons)
                 set_led(red=False, green=True)
                 while GPIO.input(START_PIN) == GPIO.LOW:
                     time.sleep(0.05)

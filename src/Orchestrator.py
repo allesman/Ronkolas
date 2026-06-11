@@ -30,7 +30,7 @@ class Orchestrator:
         self._mode = mode
         self._src = source # can either be usb for usb stick or file for local file
         
-    def run(self) -> bool:
+    def run(self,callback) -> bool:
         try:
             img_path = None
             if self._src == "usb":
@@ -42,7 +42,7 @@ class Orchestrator:
                 return False
             img = self._load(img_path)
             ascii = self._process_and_convert(img)
-            self._print(ascii)
+            self._print(ascii, callback)
             self._log.info("pipeline fully executed")
             return True
         except Exception as e:
@@ -82,11 +82,11 @@ class Orchestrator:
         self._log.info("conversion done")
         return ascii
     
-    def _print(self, ascii_grid: ASCII) -> None:
+    def _print(self, ascii_grid: ASCII, callback) -> None:
         self._log.info("start printing")
         self._driver.setup()
         try:
-            self._driver.print_ascii(ascii_grid)
+            self._driver.print_ascii(ascii_grid, callback)
             # Paper feed: holds CR to pull artwork into display frame via weights.
             # Fixed duration for now — TODO: replace with button/sensor input once hardware is ready.
             PAPER_FEED_DURATION = 10.0  # seconds — adjust to what works with frame distance & size

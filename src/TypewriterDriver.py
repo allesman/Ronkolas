@@ -78,11 +78,17 @@ class RpiTypeWriter:
                 GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
         print("[GPIO] setup() done")
 
-    def print_ascii(self, ascii_grid: ASCII) -> None:
+    def print_ascii(self, ascii_grid: ASCII, callback) -> None:
         print("============")
         """prints the grid"""
+        running = True
         for row in ascii_grid.grid:
+            if not running:
+                break
             for i in range(len(row)):
+                running = callback()
+                if not running:
+                    break
                 char = row[i]
                 if i == len(row) - 1:
                     # last char in row, no lookahead possible, just print without shift optimization
