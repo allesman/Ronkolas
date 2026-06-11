@@ -88,7 +88,7 @@ class RpiTypeWriter:
             for i in range(len(row)):
                 running = callback()
                 if not running:
-                    break
+                    return False
                 char = row[i]
                 if i == len(row) - 1:
                     # last char in row, no lookahead possible, just print without shift optimization
@@ -101,6 +101,8 @@ class RpiTypeWriter:
                 print("------------")
             self.carriage_return()  # can be replaced with print_char('\n') prolly
             print("=============")
+
+        return True
 
     def _pulse_pin(self, pin: int) -> None:
         """pulls pin LOW, waits pulse duration, then pulls HIGH again"""

@@ -86,11 +86,12 @@ class Orchestrator:
         self._log.info("start printing")
         self._driver.setup()
         try:
-            self._driver.print_ascii(ascii_grid, callback)
+            a = self._driver.print_ascii(ascii_grid, callback)
             # Paper feed: holds CR to pull artwork into display frame via weights.
             # Fixed duration for now — TODO: replace with button/sensor input once hardware is ready.
             PAPER_FEED_DURATION = 10.0  # seconds — adjust to what works with frame distance & size
-            self._driver.feed_paper(PAPER_FEED_DURATION)
+            if a:
+                self._driver.feed_paper(PAPER_FEED_DURATION)
         finally:
             self._driver.cleanup()
         self._log.info("finished printing")
