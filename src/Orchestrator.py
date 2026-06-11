@@ -70,18 +70,7 @@ class Orchestrator:
         contrasted = self._preProc.adjust_contrast(normalized, self._contrast)
         self._log.info("preprocessing done")
 
-        if self._mode == MODE_STANDARD:
-            self._log.info("standard mode")
-            #TODO: implement Artisitc Variation
-            ascii = self._converter.convert(contrasted)
-        elif self._mode == MODE_ALG1:
-            ascii = self._converter.convert(contrasted)
-
-        elif self._mode == MODE_ALG2:
-            ascii = self._converter.convert(contrasted)
-
-        elif self._mode == MODE_ALG3:
-            ascii = self._converter.convert(contrasted)
+        ascii = self._converter.convert(contrasted, self._mode)
 
         self._log.info("conversion done")
         return ascii
