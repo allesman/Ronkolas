@@ -75,7 +75,7 @@ class ImagePreprocessor(Preprocessor):
     def compress (self, img: Image, char_aspect_ratio: float = 0.33) -> Image:
         pixels = np.array(img.pixels, dtype = np.float32)
         if pixels.ndim == 1:
-            channels = 1 if img.node == "GRAY" else 3
+            channels = 1 if img.mode == "GRAY" else 3
             pixels = pixels.reshape ((img.height, img.width, channels)) if channels > 1 \
                 else pixels.reshape((img.height, img.width))
         new_height = max(1, int(img.height * char_aspect_ratio))
@@ -84,9 +84,9 @@ class ImagePreprocessor(Preprocessor):
         compressed = np.clip(compressed, 0, 255).astype(np.uint8)
 
         return Image (
-            witdh = img.width,
+            width = img.width,
             height = new_height,
             pixels = compressed,
-            mode = img.node,
+            mode = img.mode,
             source_path = img.source_path,
         )
