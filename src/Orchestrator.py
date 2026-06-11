@@ -14,7 +14,7 @@ from type.ASCII import ASCII
 DEBUG_MODE = False
 
 STD_PATH = Path("/home/pi/Ronkolas/assets/advisor_logo.bmp")
-USB_Path = Path("MOCK_USB")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
+USB_Path = Path("/media/pi")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
 #potentially needs adjustment in img loading as unsure how usb stick works
 CONTRAST_FAC = 1.0
 MODE_STANDARD = 0
