@@ -10,14 +10,17 @@ from TypewriterDriver import RpiTypeWriter
 from type.Image import Image
 from type.ASCII import ASCII
 
+STD_PATH = Path("")
 USB_Path = Path("MOCK_USB")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
 #potentially needs adjustment in img loading as unsure how usb stick works
 CONTRAST_FAC = 1.0
-MODE_STANDARD = "standard"
-MODE_ARTISTIC = "artistic"
+MODE_STANDARD = 0
+MODE_ALG1 = 1
+MODE_ALG2 = 2
+MODE_ALG3 = 3
 
 class Orchestrator:
-    def __init__(self, contrast_factor: float, mode: str = MODE_STANDARD) -> None:
+    def __init__(self, contrast_factor: float, source: str, mode: int = 0) -> None:
         self._loader = BmpImageLoader()
         self._preProc = ImagePreprocessor()
         self._converter = RampAsciiConverter()
@@ -25,6 +28,7 @@ class Orchestrator:
         self._log = StdLogger()
         self._contrast = contrast_factor
         self._mode = mode
+        self._src = source # can either be usb for usb stick or file for local file
         
     def run(self) -> bool:
         try:
@@ -66,12 +70,7 @@ class Orchestrator:
         contrasted = self._preProc.adjust_contrast(normalized, self._contrast)
         self._log.info("preprocessing done")
 
-        if self._mode == MODE_ARTISTIC:
-            self._log.info("artistic mode")
-            #TODO: implement Artisitc Variation
-            ascii = self._converter.convert(contrasted)
-        else:
-            ascii = self._converter.convert(contrasted)
+        ascii = self._converter.convert(contrasted, self._mode)
 
         self._log.info("conversion done")
         return ascii
@@ -98,7 +97,7 @@ if __name__ == "__main__":
         format="%(asctime)s [%(levelname)s] %(message)s"
     )
     
-    orchestrator = Orchestrator(contrast_factor = CONTRAST_FAC, mode=MODE_STANDARD)
+    orchestrator = Orchestrator(contrast_factor=CONTRAST_FAC, mode=MODE_STANDARD)
     success = orchestrator.run()
     
     if not success:

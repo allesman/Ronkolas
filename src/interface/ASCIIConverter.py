@@ -66,7 +66,7 @@ class RampAsciiConverter(ASCIIConverter):
 
         return self._charset[idx]
     
-    def convert(self, image: Image) -> ASCII:
+    def convert(self, image: Image, algorithm: int) -> ASCII:
         """
         converts grayscale img to ASCII grid
         -> returns  ASCII, with grid[row][col] = one char per pixel

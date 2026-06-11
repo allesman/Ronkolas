@@ -8,17 +8,31 @@ except (ImportError, RuntimeError):
     GPIO_AVAILABLE = False
 
 START_PIN = 27 # button: start
-SWITCH_PIN = 22 # switch: switch mode (HIGH = standard, LOW = artistic)
+SWITCH_MODE = 22 # switch: usb vs. file
+# 00 -> Alg1, 01 -> Alg2, 10 -> Alg3, 11 -> Alg4
+SWITCH1_PIN = 22
+SWITCH2_PIN = 22
 LED_R_PIN = 23 # button: LED red = standard mode
 LED_G_PIN = 24 # button: LED green = artistic mode
 
 
 def get_mode() -> str:
-    return MODE_ARTISTIC if GPIO.input(SWITCH_PIN) == GPIO.LOW else MODE_STANDARD
+    return MODE_ARTISTIC if GPIO.input(SWITCH_MODE) == GPIO.LOW else MODE_STANDARD
 
-def set_led(mode: str) -> None:
-    GPIO.output(LED_R_PIN, GPIO.HIGH if mode == MODE_STANDARD else GPIO.LOW)
-    GPIO.output(LED_G_PIN, GPIO.HIGH if mode == MODE_ARTISTIC else GPIO.LOW)
+def get_alg() -> int:
+    if GPIO.input(SWITCH1_PIN) == GPIO.LOW and GPIO.input(SWITCH2_PIN) == GPIO.LOW:
+        return 0
+    elif GPIO.input(SWITCH1_PIN) == GPIO.LOW and GPIO.input(SWITCH2_PIN) == GPIO.HIGH:
+        return 1
+    elif GPIO.input(SWITCH1_PIN) == GPIO.HIGH and GPIO.input(SWITCH2_PIN) == GPIO.LOW:
+        return 2
+    elif GPIO.input(SWITCH1_PIN) == GPIO.HIGH and GPIO.input(SWITCH2_PIN) == GPIO.HIGH:
+        return 3
+    return -1
+
+def set_led(red: bool, green: bool) -> None:
+    GPIO.output(LED_R_PIN, GPIO.HIGH if red else GPIO.LOW)
+    GPIO.output(LED_G_PIN, GPIO.HIGH if green else GPIO.LOW)
 
 def main():
     #for local testing
@@ -38,16 +52,20 @@ def main():
     # --- GPIO setup ---
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(START_PIN,  GPIO.IN,  pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(SWITCH_PIN, GPIO.IN,  pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(SWITCH_MODE, GPIO.IN,  pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(SWITCH1_PIN, GPIO.IN,  pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(SWITCH2_PIN, GPIO.IN,  pull_up_down=GPIO.PUD_UP)
     GPIO.setup(LED_R_PIN,  GPIO.OUT, initial=GPIO.LOW)
     GPIO.setup(LED_G_PIN,  GPIO.OUT, initial=GPIO.LOW)
 
-    print(f"[INFO] waiting for button (GPIO {START_PIN}), switch (GPIO {SWITCH_PIN})...")
+    print(f"[INFO] waiting for button (GPIO {START_PIN}), switch (GPIO {SWITCH_MODE})...")
 
     try:
         last_mode = None
         while True:
+            set_led(red=False, green=True)
             mode = get_mode()
+            alg = get_alg()
 
             # update LED when mode changes
             if mode != last_mode:
@@ -58,7 +76,9 @@ def main():
             # start button
             if GPIO.input(START_PIN) == GPIO.LOW:
                 print(f"[INFO] button pressed - starting orchestrator in mode: {mode}")
-                Orchestrator(contrast_factor=CONTRAST_FAC, mode=mode).run()
+                set_led(red=True, green=True)
+                Orchestrator(contrast_factor=CONTRAST_FAC, source=mode, mode=alg).run()
+                set_led(red=False, green=True)
                 while GPIO.input(START_PIN) == GPIO.LOW:
                     time.sleep(0.05)
                 time.sleep(0.05)
@@ -66,6 +86,7 @@ def main():
             time.sleep(0.05)
     except KeyboardInterrupt:
         print("[INFO] stopped")
+        set_led(red=True, green=False)
     finally:
         GPIO.cleanup()
 
