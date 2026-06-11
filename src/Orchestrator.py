@@ -33,7 +33,7 @@ class Orchestrator:
         self._mode = mode
         self._src = source # can either be usb for usb stick or file for local file
         
-    def run(self) -> bool:
+    def run(self,callback) -> bool:
         try:
             img_path = None
             if self._src == "usb":
@@ -49,7 +49,7 @@ class Orchestrator:
                 self._debug_print_to_file(ascii)
                 self._log.info("DEBUG MODE: printed ascii to file instead of typewriter")
                 return True
-            self._print(ascii)
+            self._print(ascii, callback)
             self._log.info("pipeline fully executed")
             return True
         except Exception as e:
@@ -84,7 +84,6 @@ class Orchestrator:
         contrasted = self._preProc.adjust_contrast(normalized, self._contrast)
 
         squeezed = self._preProc.compress(contrasted, char_aspect_ratio=0.5)
-        # squeezed = contrasted
 
         self._log.info("preprocessing done")
 
@@ -92,8 +91,6 @@ class Orchestrator:
 
         self._log.info("conversion done")
         return ascii
-
-
     
     def _debug_print_to_file(self, ascii_grid: ASCII, path: str = "debug_output.txt") -> None:
         with open(path, "w") as f:
@@ -101,15 +98,16 @@ class Orchestrator:
                 f.write("".join(row) + "\n")
         self._log.info(f"debug output written to {path}")
 
-    def _print(self, ascii_grid: ASCII) -> None:
+    def _print(self, ascii_grid: ASCII, callback) -> None:
         self._log.info("start printing")
         self._driver.setup()
         try:
-            self._driver.print_ascii(ascii_grid)
+            a = self._driver.print_ascii(ascii_grid, callback)
             # Paper feed: holds CR to pull artwork into display frame via weights.
             # Fixed duration for now — TODO: replace with button/sensor input once hardware is ready.
             PAPER_FEED_DURATION = 10.0  # seconds — adjust to what works with frame distance & size
-            self._driver.feed_paper(PAPER_FEED_DURATION)
+            if a:
+                self._driver.feed_paper(PAPER_FEED_DURATION)
         finally:
             self._driver.cleanup()
         self._log.info("finished printing")

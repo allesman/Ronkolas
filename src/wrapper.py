@@ -14,7 +14,7 @@ from pathlib import Path
 
 # ── Konfiguration ─────────────────────────────────────────────────────────────
 # Pfad zu main.py relativ zu diesem wrapper.py
-PROGRAM         = Path(__file__).parent / "src" / "start" / "main.py"
+PROGRAM         = Path(__file__).parent  / "main.py"
 RESTART_DELAY   = 5          # Sekunden Pause zwischen Neustarts
 MAX_RESTARTS    = 10         # 0 = unbegrenzt
 LOG_FILE        = Path(__file__).parent / "wrapper.log"
