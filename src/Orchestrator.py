@@ -10,6 +10,9 @@ from TypewriterDriver import RpiTypeWriter
 from type.Image import Image
 from type.ASCII import ASCII
 
+# IMPORTANT: THIS NEEDS TO BE DISABLED UNLESS YOU WANNA OUTPUT TO FILE INSTEAD OF USING THE TYPEWRITER.
+DEBUG_MODE = False
+
 STD_PATH = Path("/home/pi/Ronkolas/assets/advisor_logo.bmp")
 USB_Path = Path("MOCK_USB")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
 #potentially needs adjustment in img loading as unsure how usb stick works
@@ -42,6 +45,10 @@ class Orchestrator:
                 return False
             img = self._load(img_path)
             ascii = self._process_and_convert(img)
+            if DEBUG_MODE:
+                self._debug_print_to_file(ascii)
+                self._log.info("DEBUG MODE: printed ascii to file instead of typewriter")
+                return True
             self._print(ascii)
             self._log.info("pipeline fully executed")
             return True
@@ -75,13 +82,25 @@ class Orchestrator:
         gray = self._preProc.to_grayscale(image)
         normalized = self._preProc.normalize(gray)
         contrasted = self._preProc.adjust_contrast(normalized, self._contrast)
+
+        squeezed = self._preProc.compress(contrasted, char_aspect_ratio=0.5)
+        # squeezed = contrasted
+
         self._log.info("preprocessing done")
 
-        ascii = self._converter.convert(contrasted, self._mode)
+        ascii = self._converter.convert(squeezed, self._mode)
 
         self._log.info("conversion done")
         return ascii
+
+
     
+    def _debug_print_to_file(self, ascii_grid: ASCII, path: str = "debug_output.txt") -> None:
+        with open(path, "w") as f:
+            for row in ascii_grid.grid:
+                f.write("".join(row) + "\n")
+        self._log.info(f"debug output written to {path}")
+
     def _print(self, ascii_grid: ASCII) -> None:
         self._log.info("start printing")
         self._driver.setup()
@@ -104,7 +123,7 @@ if __name__ == "__main__":
         format="%(asctime)s [%(levelname)s] %(message)s"
     )
     
-    orchestrator = Orchestrator(contrast_factor=CONTRAST_FAC, source="file", mode=MODE_STANDARD)
+    orchestrator = Orchestrator(contrast_factor=CONTRAST_FAC, source="usb", mode=MODE_STANDARD)
     success = orchestrator.run()
     
     if not success:

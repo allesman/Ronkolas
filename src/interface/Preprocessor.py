@@ -72,7 +72,7 @@ class ImagePreprocessor(Preprocessor):
             mode=img.mode,
             source_path=img.source_path
         )
-    def compress (self, img: Image, char_aspect_ratio: float = 0.33) -> Image:
+    def compress (self, img: Image, char_aspect_ratio: float = 0.5) -> Image:
         pixels = np.array(img.pixels, dtype = np.float32)
         if pixels.ndim == 1:
             channels = 1 if img.mode == "GRAY" else 3
