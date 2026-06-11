@@ -1,5 +1,5 @@
 import time
-from Orchestrator import Orchestrator, CONTRAST_FAC, MODE_STANDARD, MODE_ARTISTIC
+from Orchestrator import Orchestrator, CONTRAST_FAC
 
 try:
     import RPi.GPIO as GPIO
@@ -17,7 +17,7 @@ LED_G_PIN = 5 # button: LED green = artistic mode
 
 
 def get_mode() -> str:
-    return MODE_ARTISTIC if GPIO.input(SWITCH_MODE) == GPIO.LOW else MODE_STANDARD
+    return "file" if GPIO.input(SWITCH_MODE) == GPIO.LOW else "usb"
 
 def get_alg() -> int:
     if GPIO.input(SWITCH1_PIN) == GPIO.LOW and GPIO.input(SWITCH2_PIN) == GPIO.LOW:
@@ -38,15 +38,15 @@ def main():
     #for local testing
     if not GPIO_AVAILABLE:
         print("[WARN] simulation - press enter to start")
-        mode = MODE_STANDARD
+        mode = "file"
         while True:
             user_input = input()
-            if user_input.strip() in (MODE_STANDARD, MODE_ARTISTIC):
+            if user_input.strip() in ("file", "usb"):
                 mode = user_input.strip()
                 print(f"[SIM] set mode to: {mode}")
             else:
                 print(f"[SIM] button pressed - starting orchestrator in mode: {mode}")
-                Orchestrator(contrast_factor=CONTRAST_FAC, mode=mode).run()
+                Orchestrator(contrast_factor=CONTRAST_FAC, source=mode).run()
         return
 
     # --- GPIO setup ---
