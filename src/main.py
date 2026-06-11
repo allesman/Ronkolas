@@ -69,7 +69,6 @@ def main():
 
             # update LED when mode changes
             if mode != last_mode:
-                set_led(mode)
                 print(f"[INFO] mode: {mode}")
                 last_mode = mode
 
