@@ -10,7 +10,7 @@ from TypewriterDriver import RpiTypeWriter
 from type.Image import Image
 from type.ASCII import ASCII
 
-STD_PATH = Path("~/Ronkolas/assets/advisor4.bmp")
+STD_PATH = Path("/home/pi/Ronkolas/assets/advisor4.bmp")
 USB_Path = Path("MOCK_USB")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
 #potentially needs adjustment in img loading as unsure how usb stick works
 CONTRAST_FAC = 1.0
