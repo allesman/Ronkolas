@@ -33,7 +33,7 @@ class Orchestrator:
     def run(self) -> bool:
         try:
             img_path = None
-            if self._mode == "usb":
+            if self._src == "usb":
                 img_path = self._find_image_on_usb()
             else:
                 img_path = self._get_file_path()
