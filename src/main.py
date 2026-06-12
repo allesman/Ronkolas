@@ -60,8 +60,9 @@ def _shutdown_pi():
 def main():
     #for local testing
     if not GPIO_AVAILABLE:
-        print("[WARN] simulation - press enter to start, type 'file'/'usb' to set source, type 'shutdown' to simulate long press")
+        print("[WARN] simulation - press enter to start, type 'file'/'usb' to set source (default: file), type 'shutdown' to simulate long press, type a number from 0-3 to set alg (default: 0)")
         mode = "file"
+        alg=0
         while True:
             user_input = input().strip()
             if user_input in ("file", "usb"):
@@ -72,8 +73,12 @@ def main():
                 print("[SIM] long press detected - simulating shutdown")
                 _shutdown_pi()
                 continue
+            if user_input in ["0", "1", "2", "3"]:
+                print(f"[SIM] set alg to: {user_input}")
+                alg=int(user_input)
+                continue
             print(f"[SIM] button pressed - starting orchestrator in mode: {mode}")
-            Orchestrator(contrast_factor=CONTRAST_FAC, source=mode).run((lambda: True)) # in simulation, we don't check buttons during print
+            Orchestrator(contrast_factor=CONTRAST_FAC, source=mode,alg=alg).run((lambda: True)) # in simulation, we don't check buttons during print
         return
 
     # --- GPIO setup ---
@@ -118,7 +123,7 @@ def main():
                     # button released before shutdown threshold -> short press: start orchestrator
                     print(f"[INFO] button pressed - starting orchestrator in mode: {mode}")
                     set_led(red=True, green=True)
-                    Orchestrator(contrast_factor=CONTRAST_FAC, source=mode, mode=alg).run(check_buttons)
+                    Orchestrator(contrast_factor=CONTRAST_FAC, source=mode, alg=alg).run(check_buttons)
                     set_led(red=False, green=True)
                     # debounce: wait until release
                     while GPIO.input(START_PIN) == GPIO.LOW:
