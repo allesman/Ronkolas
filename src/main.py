@@ -73,7 +73,7 @@ def main():
                 _shutdown_pi()
                 continue
             print(f"[SIM] button pressed - starting orchestrator in mode: {mode}")
-            Orchestrator(contrast_factor=CONTRAST_FAC, source=mode).run()
+            Orchestrator(contrast_factor=CONTRAST_FAC, source=mode).run((lambda: True)) # in simulation, we don't check buttons during print
         return
 
     # --- GPIO setup ---
