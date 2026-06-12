@@ -29,7 +29,7 @@ CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
     '2':  (17,),
     '=':  (14,),
     'l':  (8,), # should be semicolon but we messed up the wiring apparently
-    # ';':  (8,),
+    ';':  (8,), # backwards compatibility, will be printed as l
     '\n': (15,),
 
     # shifted
@@ -39,7 +39,7 @@ CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
     '@':  (SHIFT_PIN, 17),
     '+':  (SHIFT_PIN, 14),
     'L': (SHIFT_PIN, 8), # should be colon but we messed up the wiring apparently
-    # ':':  (SHIFT_PIN, 8),
+    ':':  (SHIFT_PIN, 8), # backwards compatibility, will be printed as L
 }
 
 # -------------------------------------------------------------------------------------------
