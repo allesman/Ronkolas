@@ -26,7 +26,7 @@ class Orchestrator:
     def __init__(self, contrast_factor: float, source: str, mode: int = 0) -> None:
         self._loader = BmpImageLoader()
         self._preProc = ImagePreprocessor()
-        self._converter = RampAsciiConverter()
+        self._converter = RampAsciiConverter(mode=mode)
         self._driver = RpiTypeWriter()
         self._log = StdLogger()
         self._contrast = contrast_factor

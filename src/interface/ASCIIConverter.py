@@ -26,13 +26,16 @@ class RampAsciiConverter(ASCIIConverter):
     grayscale pixel values to ASCII-characters via brightness ramp
     """
 
-    def __init__(self, charset: str = STANDARD_CHARSET) -> None:
+    def __init__(self, charset: str = STANDARD_CHARSET, mode:int = 0) -> None:
         """
         Args:
             charset:    brightness ramp, must have >= 2 chars
                         Convention: index 0 brightest, last index = darkest. e.g. " .:=+*#%@"
         """
-        self.set_charset(charset)
+        if mode == 1: #inversion alg/filter/mode
+            self.set_charset(charset[::-1]) #reverse charset for inverted ramp
+        else: # other modes (could also add clause for mode 2 or 3, 0 stays default)
+            self.set_charset(charset)
 
     def set_charset(self, charset: str) -> None:
         """
