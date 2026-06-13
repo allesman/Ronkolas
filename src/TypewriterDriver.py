@@ -78,7 +78,7 @@ class RpiTypeWriter:
                 GPIO.setup(pin, GPIO.OUT, initial=GPIO.HIGH)
         print("[GPIO] setup() done")
 
-    def print_ascii(self, ascii_grid: ASCII, callback) -> None:
+    def print_ascii(self, ascii_grid: ASCII, callback) -> bool:
         print("============")
         """prints the grid"""
         running = True
