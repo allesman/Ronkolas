@@ -14,8 +14,8 @@ SWITCH_MODE = 13 # switch: usb vs. file
 # 00 -> Alg1, 01 -> Alg2, 10 -> Alg3, 11 -> Alg4
 SWITCH1_PIN = 12
 SWITCH2_PIN = 16
-LED_R_PIN = 0 # button: LED red = standard mode
-LED_G_PIN = 5 # button: LED green = artistic mode
+LED_R_PIN = 0 # button: LED red = robovinci mode
+LED_G_PIN = 5 # button: LED green = vorführ mode
 
 # hold time (seconds) to trigger shutdown
 SHUTDOWN_HOLD_SECONDS = 3.0
