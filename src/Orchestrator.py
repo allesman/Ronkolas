@@ -14,7 +14,7 @@ from type.ASCII import ASCII
 DEBUG_MODE = False
 
 STD_PATH = Path("/home/laser/Ronkolas/assets/advisor-logo.bmp")
-USB_Path = Path("/media/laser")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
+USB_Path = Path("/media/laser")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi
 
 if DEBUG_MODE:
     # override paths
@@ -114,7 +114,7 @@ class Orchestrator:
             a = self._driver.print_ascii(ascii_grid, callback)
             # Paper feed: holds CR to pull artwork into display frame via weights.
             # Fixed duration for now — TODO: replace with button/sensor input once hardware is ready.
-            PAPER_FEED_DURATION = 10.0  # seconds — adjust to what works with frame distance & size
+            PAPER_FEED_DURATION = 20.0  # seconds — adjust to what works with frame distance & size
             if a:
                 self._driver.feed_paper(PAPER_FEED_DURATION)
         finally:
