@@ -30,7 +30,7 @@ REALISTIC_MAX_CHARSET = " .=+*#8$@" # remove opacity duplicates
 
 REALISTIC_MAX_CHARSET_BIASED = "   ....====+*#8$@" # biased towards less opacity
 
-REDUCED_CHARSET = " .=+*#%@" # less chars, faster printing
+REDUCED_CHARSET = " .=+*#@" # less chars, faster printing
 
 FAST_CHARSET = "   .=+*#@" # bias towards space for even faster printing
 
