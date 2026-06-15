@@ -43,7 +43,7 @@ CHAR_TO_PIN: dict[str, tuple[int, ...]] = {
 }
 
 # -------------------------------------------------------------------------------------------
-# Timing - in seconds, TODO: change according to typewriter speed
+# Timing - in seconds, finalize timing passt so
 
 PULSE_DURATION = 0.05  # how long is signal on high in relais (cur: 50ms)
 CHAR_DELAY = 0.02  # pause between chars (cur: 100ms)
