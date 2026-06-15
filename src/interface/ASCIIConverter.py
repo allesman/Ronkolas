@@ -28,7 +28,7 @@ MAX_CHARSET = " ,+=*lL2438$#@" # max chars
 
 REALISTIC_MAX_CHARSET = " .=+*#8$#@" # remove opacity duplicates
 
-REALISTIC_MAX_CHARSET_BIASED = "   ....====+*#8$#@" # biased towards less opacity
+REALISTIC_MAX_CHARSET_BIASED = "   ....====+*#8$@" # biased towards less opacity
 
 REDUCED_CHARSET = " .=+*#%@" # less chars, faster printing
 
