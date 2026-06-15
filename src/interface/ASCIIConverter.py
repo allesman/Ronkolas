@@ -26,15 +26,15 @@ class ASCIIConverter(ABC):
 
 MAX_CHARSET = " ,+=*lL2438$#@" # max chars
 
-REALISTIC_MAX_CHARSET = " .=+*#8$@" # remove opacity duplicates
+REALISTIC_MAX_CHARSET = " ,=+*#8$@" # remove opacity duplicates
 
-REALISTIC_MAX_CHARSET_BIASED = "   ....====+*#8$@" # biased towards less opacity
+REALISTIC_MAX_CHARSET_BIASED = "   ,,,,====+*#8$@" # biased towards less opacity
 
-REDUCED_CHARSET = " .=+*#@" # less chars, faster printing
+REDUCED_CHARSET = " ,=+*#@" # less chars, faster printing
 
-FAST_CHARSET = "   .=+*#@" # bias towards space for even faster printing
+FAST_CHARSET = "   ,=+*#@" # bias towards space for even faster printing
 
-MORE_FAST_CHARSET = "        ...=+*#@" # bias towards space for even faster printing
+MORE_FAST_CHARSET = "        ,,,=+*#@" # bias towards space for even faster printing
 
 # IMPORTANT: might get overridden in constructor, depending on mode (this is only used for modes 2 and 3 rn)
 STANDARD_CHARSET = REDUCED_CHARSET     #ADJUST CHARSET HERE
