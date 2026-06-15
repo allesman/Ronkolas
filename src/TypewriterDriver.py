@@ -80,6 +80,7 @@ class RpiTypeWriter:
 
     def print_ascii(self, ascii_grid: ASCII, callback) -> bool:
         print("============")
+        self.print_char("\n", shift_after=False)
         """prints the grid"""
         running = True
         for row in ascii_grid.grid:
