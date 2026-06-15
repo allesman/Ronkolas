@@ -26,7 +26,7 @@ class ASCIIConverter(ABC):
 
 MAX_CHARSET = " ,+=*lL2438$#@" # max chars
 
-REALISTIC_MAX_CHARSET = " .=+*#8$#@" # remove opacity duplicates
+REALISTIC_MAX_CHARSET = " .=+*#8$@" # remove opacity duplicates
 
 REALISTIC_MAX_CHARSET_BIASED = "   ....====+*#8$@" # biased towards less opacity
 
