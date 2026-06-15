@@ -13,7 +13,7 @@ from type.ASCII import ASCII
 # IMPORTANT: THIS NEEDS TO BE DISABLED BEFORE PUSHING!
 DEBUG_MODE = False
 
-STD_PATH = Path("/home/pi/Ronkolas/assets/advisor_logo.bmp")
+STD_PATH = Path("/home/pi/Ronkolas/assets/advisor-logo.bmp")
 USB_Path = Path("/media/pi")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi TODO:
 
 if DEBUG_MODE:
