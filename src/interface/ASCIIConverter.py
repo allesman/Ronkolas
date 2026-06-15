@@ -19,6 +19,11 @@ class ASCIIConverter(ABC):
 
 #Implementation
 
+#notes for charsets (experiences):
+    #heavier weight on sparse characters makes image more appealing
+    #fastest printwise: space biased charsets with stretched characters produce repetitive patterns with more spaces in the result
+    #nearly optimal: "   ....====+*#8$#@" -> combines small space bias with repetitive char patterns, but still some variation to avoid clusters
+
 MAX_CHARSET = " ,+=*lL2438$#@" # max chars
 
 REALISTIC_MAX_CHARSET = " .=+*#8$#@" # remove opacity duplicates
