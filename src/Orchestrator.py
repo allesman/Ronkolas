@@ -18,7 +18,7 @@ USB_Path = Path("/media/pi")       #unsure was hier der richtige Path ist, nachs
 
 if DEBUG_MODE:
     # override paths
-    STD_PATH = Path("MOCK_USB/Berge(1).bmp")
+    STD_PATH = Path("MOCK_USB/mountain.bmp")
     USB_Path = Path("MOCK_USB")
 
 #potentially needs adjustment in img loading as unsure how usb stick works
@@ -89,10 +89,13 @@ class Orchestrator:
         normalized = self._preProc.normalize(gray)
         contrasted = self._preProc.adjust_contrast(normalized, self._contrast)
 
-        squeezed = self._preProc.compress(contrasted)
+        custom_alg_applied = self._preProc.custom_alg(contrasted,self._alg)
+
+        squeezed = self._preProc.compress(custom_alg_applied)
 
         self._log.info("preprocessing done")
 
+        # custom alg id is also passed here, since inversion is applied in this step and not custom_alg()
         ascii_grid = self._converter.convert(squeezed, self._alg)
 
         self._log.info("conversion done")

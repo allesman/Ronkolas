@@ -25,12 +25,16 @@ def get_mode() -> str:
 
 def get_alg() -> int:
     if GPIO.input(SWITCH1_PIN) == GPIO.LOW and GPIO.input(SWITCH2_PIN) == GPIO.LOW:
+        # default alg (no preprocessing other than standard)
         return 0
     elif GPIO.input(SWITCH1_PIN) == GPIO.LOW and GPIO.input(SWITCH2_PIN) == GPIO.HIGH:
+        # inversion
         return 1
     elif GPIO.input(SWITCH1_PIN) == GPIO.HIGH and GPIO.input(SWITCH2_PIN) == GPIO.LOW:
+        # structure enhancement (kuwahara)
         return 2
     elif GPIO.input(SWITCH1_PIN) == GPIO.HIGH and GPIO.input(SWITCH2_PIN) == GPIO.HIGH:
+        # edge detection (sobel)
         return 3
     return -1
 
@@ -79,6 +83,8 @@ def main():
                 continue
             print(f"[SIM] button pressed - starting orchestrator in mode: {mode}")
             Orchestrator(contrast_factor=CONTRAST_FAC, source=mode,alg=alg).run((lambda: True)) # in simulation, we don't check buttons during print
+            print(f"debug run complete (would be outputting paper)")
+            return
         return
 
     # --- GPIO setup ---

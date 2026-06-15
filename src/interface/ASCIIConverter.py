@@ -18,10 +18,10 @@ class ASCIIConverter(ABC):
         ...
 
 #Implementation
+
 MAX_CHARSET = " ,+=*lL2438$#@" # max chars
 
 REALISTIC_MAX_CHARSET = " .=+*#8$#@" # remove opacity duplicates
-
 
 REALISTIC_MAX_CHARSET_BIASED = "   ....====+*#8$#@" # biased towards less opacity
 
@@ -31,7 +31,9 @@ FAST_CHARSET = "   .=+*#@" # bias towards space for even faster printing
 
 MORE_FAST_CHARSET = "        ...=+*#@" # bias towards space for even faster printing
 
-STANDARD_CHARSET = REALISTIC_MAX_CHARSET_BIASED      #ADJUST CHARSET HERE
+# IMPORTANT: might get overridden in constructor, depending on mode (this is only used for modes 2 and 3 rn)
+STANDARD_CHARSET = REDUCED_CHARSET     #ADJUST CHARSET HERE
+
 
 class RampAsciiConverter(ASCIIConverter):
     """
@@ -44,8 +46,11 @@ class RampAsciiConverter(ASCIIConverter):
             charset:    brightness ramp, must have >= 2 chars
                         Convention: index 0 brightest, last index = darkest. e.g. " .:=+*#%@"
         """
+        # TODO?
         if mode == 1: #inversion alg/filter/mode
             self.set_charset(charset[::-1]) #reverse charset for inverted ramp
+        if mode==0: # standard mode, no alg/filter applied
+            self.set_charset(REALISTIC_MAX_CHARSET_BIASED)
         else: # other modes (could also add clause for mode 2 or 3, 0 stays default)
             self.set_charset(charset)
 

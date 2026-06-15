@@ -90,6 +90,7 @@ class RpiTypeWriter:
                 if not running:
                     return False
                 char = row[i]
+                # TODO switch to guard clauses, add early cr optimization
                 if i == len(row) - 1:
                     # last char in row, no lookahead possible, just print without shift optimization
                     self.print_char(char, shift_after=False)
