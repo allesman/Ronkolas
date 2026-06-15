@@ -51,7 +51,7 @@ class RampAsciiConverter(ASCIIConverter):
             charset:    brightness ramp, must have >= 2 chars
                         Convention: index 0 brightest, last index = darkest. e.g. " .:=+*#%@"
         """
-        # TODO?
+        # TODO custom charsets for algs
         if mode == 1: #inversion alg/filter/mode
             self.set_charset(charset[::-1]) #reverse charset for inverted ramp
         if mode==0: # standard mode, no alg/filter applied

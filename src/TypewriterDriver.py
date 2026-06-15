@@ -90,15 +90,23 @@ class RpiTypeWriter:
                 if not running:
                     return False
                 char = row[i]
-                # TODO switch to guard clauses, add early cr optimization
                 if i == len(row) - 1:
-                    # last char in row, no lookahead possible, just print without shift optimization
+                    # last char in row
+                    if char == ' ':
+                        # if last char is space, skip printing and just do carriage return for early row exit optimization
+                        break
+                    # no lookahead possible, just print without shift optimization
                     self.print_char(char, shift_after=False)
-                else:
-                    # lookahead to check if next char is shifted for timing optimization
-                    next_char = row[i + 1]
-                    shift_after = self._is_char_shifted(next_char)
-                    self.print_char(char, shift_after)
+                    continue
+                # non-last char, 2 checks need to be done
+                # if char is space, check if all remaining chars of line are space too -> early row exit
+                if char == ' ' and all(remaining_char == ' ' for remaining_char in row[i:]):
+                    break
+                # non-space, non-last char
+                # lookahead to check if next char is shifted for timing optimization
+                next_char = row[i + 1]
+                shift_after = self._is_char_shifted(next_char)
+                self.print_char(char, shift_after)
                 print("------------")
             self.carriage_return()  # can be replaced with print_char('\n') prolly
             print("=============")
@@ -221,11 +229,10 @@ class RpiTypeWriter:
         driver.cleanup()   # must always execute
     """
 
-    # TODO's:
 
     # - [x] currently code does Active-High (GPIO.HIGH = Relais on). if relais are active-low, change HIGH and LOW in code. note: that is in fact the case, so I changed it
     # - [x] CHAR_TO_PIN needs to be set up once wiring is set. BCM numbering refers to the GPIO numbers, not the physical pin numbers on the board
-    # - [/] Timing: PULSE_DURATION and CHAR_DELAY need to be empirically determined on the typewriter: too short will result in relais not triggering, too lang will result in long waiting times for printing
+    # - [x] Timing: PULSE_DURATION and CHAR_DELAY need to be empirically determined on the typewriter: too short will result in relais not triggering, too lang will result in long waiting times for printing
     # - [x] Timing optimization: hold down shift pin for consecutive shifted chars to avoid multiple pulses on shift pin.
 
     # -----

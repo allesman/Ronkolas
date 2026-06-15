@@ -52,6 +52,7 @@ def check_buttons() -> bool:
 def _shutdown_pi():
     print("[INFO] shutting down now...")
     try:
+        # TODO find out if works
         subprocess.run(["sudo", "shutdown", "-h", "now"])
     except Exception as e:
         print(f"[ERROR] failed to call shutdown: {e}")
