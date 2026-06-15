@@ -13,12 +13,12 @@ from type.ASCII import ASCII
 # IMPORTANT: THIS NEEDS TO BE DISABLED BEFORE PUSHING!
 DEBUG_MODE = False
 
-STD_PATH = Path("/home/laser/Ronkolas/assets/advisor-logo.bmp")
+STD_PATH = Path("/home/laser/Ronkolas/assets/Image.bmp")
 USB_Path = Path("/media/laser")       #unsure was hier der richtige Path ist, nachschauen auf raspi, wie der usb stick abspeichert? evtl /media/pi
 
 if DEBUG_MODE:
     # override paths
-    STD_PATH = Path("MOCK_USB/mountain.bmp")
+    STD_PATH = Path("MOCK_USB/Image.bmp")
     USB_Path = Path("MOCK_USB")
 
 #potentially needs adjustment in img loading as unsure how usb stick works

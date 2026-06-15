@@ -52,7 +52,7 @@ def check_buttons() -> bool:
 def _shutdown_pi():
     print("[INFO] shutting down now...")
     try:
-        # TODO find out if works
+        # TODO find out if works now
         subprocess.run(["sudo", "shutdown", "-h", "now"])
     except Exception as e:
         print(f"[ERROR] failed to call shutdown: {e}")
@@ -114,8 +114,10 @@ def main():
             # poll start button
             if GPIO.input(START_PIN) == GPIO.LOW:
                 # detect long press
+                time.sleep(0.02)  # debounce inshallah
                 t0 = time.monotonic()
                 while GPIO.input(START_PIN) == GPIO.LOW:
+
                     elapsed = time.monotonic() - t0
                     if elapsed >= SHUTDOWN_HOLD_SECONDS:
                         # indicate imminent shutdown on LEDs
